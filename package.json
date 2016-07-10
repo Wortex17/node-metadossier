@@ -1,0 +1,43 @@
+{
+  "name": "metadossier",
+  "version": "0.0.1",
+  "description": "Store and retrieve decentralized meta-data in NodeJS",
+  "keywords": [
+    "metadata",
+    "dvcs",
+    "merge",
+    "file-system",
+    "fs"
+  ],
+  "license": "MIT",
+  "author": "Patrick Michael Hopf (https://github.com/Wortex17)",
+  "homepage": "https://github.com/Wortex17/node-metadossier#readme",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/wortex17/node-metadossier.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Wortex17/node-metadossier/issues"
+  },
+  "main": "lib",
+  "scripts": {
+    "test": "mocha spec --recursive",
+    "test-cover": "istanbul cover node_modules/mocha/bin/_mocha -- spec --recursive",
+    "preversion": "npm test",
+    "prepublish": "npm test"
+  },
+  "engines": {
+    "node": ">=4.0"
+  },
+  "dependencies": {
+    "fswin": "^2.16.501",
+    "jsodvcs": "^0.1.0",
+    "lodash": "^4.6.1",
+    "mkdirp": "^0.5.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "coveralls": "^2.11.9",
+    "mocha": "^2.4.5"
+  }
+}
