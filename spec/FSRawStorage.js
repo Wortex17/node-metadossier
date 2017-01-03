@@ -210,8 +210,8 @@ describe('Internal Module: FSRawStorage', function() {
                 });
             });
             context('when topic(directory) and dossier exist', function(){
-                FSRawStorage.writeDossierRaw(topic, "tst", "usr", 0, "CONTENTS", function(err){
-                    it('should return dossier rawContents', function(done){
+                it('should return dossier rawContents', function(done){
+                    FSRawStorage.writeDossierRaw(topic, "tst", "usr", 0, "CONTENTS", function(err){
                         FSRawStorage.readDossierRaw(topic, "tst", "usr", 0, function(err, rawContents){
                             expect(err).to.be.null;
                             expect(rawContents.toString()).to.equal("CONTENTS");
