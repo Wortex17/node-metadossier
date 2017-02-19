@@ -107,31 +107,78 @@ describe('Internal Module: LockedContent', function() {
 
     describe('instance methods', function() {
 
-        let context = {};
+        let c = {};
 
-        before(function() {
-            context.instance = LockedContent.lock(testContent, {keys: authorKeychain});
+        beforeEach(function() {
+            c.instance = LockedContent.lock(testContent, {keys: authorKeychain});
         });
 
         describe('#erase', function() {
 
             it('should not throw an error', function(){
                 expect(function(){
-                    context.instance.erase();
+                    c.instance.erase();
                 }).to.not.throw();
             });
 
             it('should remove the encrypted content', function(){
-                expect(context.instance.encryptedContent).to.be.undefined;
+                c.instance.erase();
+                expect(c.instance.encryptedContent).to.be.undefined;
             });
             it('should remove the encrypted symmetric key', function(){
-                expect(context.instance.encryptedSymmetricKey).to.be.undefined;
+                c.instance.erase();
+                expect(c.instance.encryptedSymmetricKey).to.be.undefined;
             });
             it('should remove the encrypted content signature', function(){
-                expect(context.instance.encryptedContentSignature).to.be.undefined;
+                c.instance.erase();
+                expect(c.instance.encryptedContentSignature).to.be.undefined;
             });
             it('should remove the encrypted symmetric key signature ', function(){
-                expect(context.instance.encryptedSymmetricKeySignature).to.be.undefined;
+                c.instance.erase();
+                expect(c.instance.encryptedSymmetricKeySignature).to.be.undefined;
+            });
+        });
+
+        describe('#unlock', function() {
+            context('when no options are given', function(){
+                function execution(){
+                    return c.instance.unlock();
+                }
+                it('should throw an error', function(){
+                    expect(execution).to.throw();
+                });
+            });
+            context('when no options.keys are given', function(){
+                function execution(){
+                    return c.instance.unlock({});
+                }
+                it('should throw an error', function(){
+                    expect(execution).to.throw();
+                });
+            });
+            context('when options.keys are unsupported', function(){
+                function execution(){
+                    return c.instance.unlock({keys:false});
+                }
+                it('should throw an error', function(){
+                    expect(execution).to.throw();
+                });
+            });
+            context('when options.keys is a matching public NodeRSA keypair', function(){
+                function execution(){
+                    return c.instance.unlock({keys:readerKeypair});
+                }
+                it('should throw an error', function(){
+                    expect(execution).to.not.throw();
+                });
+            });
+            context('when options.keys is a Keychain with a matching keypair', function(){
+                function execution(){
+                    return c.instance.unlock({keys:readerKeychain});
+                }
+                it('should throw an error', function(){
+                    expect(execution).to.not.throw();
+                });
             });
         });
     });
