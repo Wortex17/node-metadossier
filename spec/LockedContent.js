@@ -1,0 +1,138 @@
+/*!
+ * node-metadossier
+ * https://github.com/wortex17/node-metadossier
+ * Created 15.07.2016 by Patrick Michael Hopf
+ *
+ * Released under The MIT License
+ */
+"use strict";
+
+let
+    chai = require('chai')
+    ,expect = chai.expect
+    ;
+let
+    NodeRSA = require("node-rsa")
+    ;
+let
+    LockedContent = require("../lib/LockedContent"),
+    Keychain = require("../lib/Keychain")
+    ;
+
+describe('Internal Module: LockedContent', function() {
+
+    let testContent = "CONTENT";
+    let authorKeychain = new Keychain();
+    authorKeychain.addNewAuthorKeypair({b: 1024});
+    let authorKeypair = authorKeychain.keypairs[0];
+    let readerKeychain = new Keychain();
+    readerKeychain.addReaderKeypair(authorKeypair);
+    let readerKeypair = readerKeychain.keypairs[0];
+
+    describe('construction', function() {
+        describe('#lock', function() {
+            context('when no arguments are given', function(){
+                it('should throw an error', function(){
+                    expect(function(){
+                        LockedContent.lock();
+                    }).to.throw();
+                });
+            });
+            context('when no options are given', function(){
+                it('should throw an error', function(){
+                    expect(function(){
+                        LockedContent.lock(testContent);
+                    }).to.throw();
+                });
+            });
+            context('when no options.keys are given', function(){
+                it('should throw an error', function(){
+                    expect(function(){
+                        LockedContent.lock(testContent, {});
+                    }).to.throw();
+                });
+            });
+            context('when options.keys are unsupported', function(){
+                function execution(){
+                    return LockedContent.lock(testContent, {keys: false});
+                }
+                it('should throw an error', function(){
+                    expect(execution).to.throw();
+                });
+            });
+            context('when options.keys is a private NodeRSAKey', function(){
+                function execution(){
+                    return LockedContent.lock(testContent, {keys: authorKeypair});
+                }
+                it('should not throw an error', function(){
+                    expect(execution).to.not.throw();
+                });
+            });
+            context('when options.keys is a public NodeRSAKey', function(){
+                function execution(){
+                    return LockedContent.lock(testContent, {keys: readerKeypair});
+                }
+                it('should throw an error', function(){
+                    expect(execution).to.throw();
+                });
+            });
+            context('when options.keys is a Keychain with a writekey', function(){
+                function execution(){
+                    return LockedContent.lock(testContent, {keys: authorKeychain});
+                }
+                it('should not throw an error', function(){
+                    expect(execution).to.not.throw();
+                });
+                it('should return a LockedContent instance', function(){
+                    expect(execution()).to.be.an.instanceof(LockedContent);
+                });
+            });
+            context('when options.keys is a keychain with only readkeys', function(){
+                function execution(){
+                    return LockedContent.lock(testContent, {keys: readerKeychain});
+                }
+                it('should throw an error', function(){
+                    expect(execution).to.throw();
+                });
+            });
+            context('when encryption fails because of unknown errors', function(){
+                it('should throw an error', function(){
+                    expect(function(){
+                        LockedContent.lock(testContent, {debugFailEncryption: true});
+                    }).to.throw();
+                });
+            });
+        });
+    });
+
+    describe('instance methods', function() {
+
+        let context = {};
+
+        before(function() {
+            context.instance = LockedContent.lock(testContent, {keys: authorKeychain});
+        });
+
+        describe('#erase', function() {
+
+            it('should not throw an error', function(){
+                expect(function(){
+                    context.instance.erase();
+                }).to.not.throw();
+            });
+
+            it('should remove the encrypted content', function(){
+                expect(context.instance.encryptedContent).to.be.undefined;
+            });
+            it('should remove the encrypted symmetric key', function(){
+                expect(context.instance.encryptedSymmetricKey).to.be.undefined;
+            });
+            it('should remove the encrypted content signature', function(){
+                expect(context.instance.encryptedContentSignature).to.be.undefined;
+            });
+            it('should remove the encrypted symmetric key signature ', function(){
+                expect(context.instance.encryptedSymmetricKeySignature).to.be.undefined;
+            });
+        });
+    });
+});
