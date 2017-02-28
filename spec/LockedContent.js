@@ -12,6 +12,7 @@ let
     ,expect = chai.expect
     ;
 let
+    _ = require("lodash"),
     NodeRSA = require("node-rsa")
     ;
 let
@@ -153,19 +154,45 @@ describe('Internal Module: LockedContent', function() {
                 });
             });
             context('when no options.keys are given', function(){
-                function execution(){
-                    return c.instance.unlock({});
+                function getExecution(options)
+                {
+                    return function execution(){
+                        return c.instance.unlock(_.extend(options, {}));
+                    }
                 }
                 it('should throw an error', function(){
-                    expect(execution).to.throw();
+                    expect(getExecution()).to.throw();
+                });
+                it('should not throw an error if options.throwError is false', function(){
+                    expect(getExecution({
+                        throwError:false
+                    })).to.not.throw();
+                });
+                it('should return undefined if options.throwError is false', function(){
+                    expect(getExecution({
+                        throwError:false
+                    })()).to.be.an('undefined');
                 });
             });
             context('when options.keys are unsupported', function(){
-                function execution(){
-                    return c.instance.unlock({keys:false});
+                function getExecution(options)
+                {
+                    return function execution(){
+                        return c.instance.unlock(_.extend(options, {keys:false}));
+                    }
                 }
                 it('should throw an error', function(){
-                    expect(execution).to.throw();
+                    expect(getExecution()).to.throw();
+                });
+                it('should not throw an error if options.throwError is false', function(){
+                    expect(getExecution({
+                        throwError:false
+                    })).to.not.throw();
+                });
+                it('should return undefined if options.throwError is false', function(){
+                    expect(getExecution({
+                        throwError:false
+                    })()).to.be.an('undefined');
                 });
             });
             context('when options.keys is a matching NodeRSA keypair', function(){
@@ -197,19 +224,45 @@ describe('Internal Module: LockedContent', function() {
                 });
             });
             context('when options.keys is a not-matching NodeRSA keypair', function(){
-                function execution(){
-                    return c.instance.unlock({keys:alternativeAuthorKeypair});
+                function getExecution(options)
+                {
+                    return function execution(){
+                        return c.instance.unlock(_.extend(options, {keys:alternativeAuthorKeypair}));
+                    }
                 }
                 it('should throw an error', function(){
-                    expect(execution).to.throw();
+                    expect(getExecution()).to.throw();
+                });
+                it('should not throw an error if options.throwError is false', function(){
+                    expect(getExecution({
+                        throwError:false
+                    })).to.not.throw();
+                });
+                it('should return undefined if options.throwError is false', function(){
+                    expect(getExecution({
+                        throwError:false
+                    })()).to.be.an('undefined');
                 });
             });
             context('when options.keys is a Keychain with no matching keypair', function(){
-                function execution(){
-                    return c.instance.unlock({keys:alternativeAuthorKeychain});
+                function getExecution(options)
+                {
+                    return function execution(){
+                        return c.instance.unlock(_.extend(options, {keys:alternativeAuthorKeychain}));
+                    }
                 }
                 it('should throw an error', function(){
-                    expect(execution).to.throw();
+                    expect(getExecution()).to.throw();
+                });
+                it('should not throw an error if options.throwError is false', function(){
+                    expect(getExecution({
+                        throwError:false
+                    })).to.not.throw();
+                });
+                it('should return undefined if options.throwError is false', function(){
+                    expect(getExecution({
+                        throwError:false
+                    })()).to.be.an('undefined');
                 });
             });
         });
