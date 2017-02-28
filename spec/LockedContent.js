@@ -29,6 +29,10 @@ describe('Internal Module: LockedContent', function() {
     readerKeychain.addReaderKeypair(authorKeypair);
     let readerKeypair = readerKeychain.keypairs[0];
 
+
+    let alternativeAuthorKeychain = new Keychain();
+    let alternativeAuthorKeypair = alternativeAuthorKeychain.keypairs[0];
+
     describe('construction', function() {
         describe('#lock', function() {
             context('when no arguments are given', function(){
@@ -164,20 +168,48 @@ describe('Internal Module: LockedContent', function() {
                     expect(execution).to.throw();
                 });
             });
-            context('when options.keys is a matching public NodeRSA keypair', function(){
+            context('when options.keys is a matching NodeRSA keypair', function(){
                 function execution(){
                     return c.instance.unlock({keys:readerKeypair});
                 }
-                it('should throw an error', function(){
+                it('should not throw an error', function(){
                     expect(execution).to.not.throw();
+                });
+                it('should return a buffer', function(){
+                    expect(execution()).to.be.an.instanceof(Buffer);
+                });
+                it('should return a copy of the content', function(){
+                    expect(execution()).to.deep.equal(new Buffer(testContent));
                 });
             });
             context('when options.keys is a Keychain with a matching keypair', function(){
                 function execution(){
                     return c.instance.unlock({keys:readerKeychain});
                 }
-                it('should throw an error', function(){
+                it('should not throw an error', function(){
                     expect(execution).to.not.throw();
+                });
+                it('should return a buffer', function(){
+                    expect(execution()).to.be.an.instanceof(Buffer);
+                });
+                it('should return a copy of the content', function(){
+                    expect(execution()).to.deep.equal(new Buffer(testContent));
+                });
+            });
+            context('when options.keys is a not-matching NodeRSA keypair', function(){
+                function execution(){
+                    return c.instance.unlock({keys:alternativeAuthorKeypair});
+                }
+                it('should throw an error', function(){
+                    expect(execution).to.throw();
+                });
+            });
+            context('when options.keys is a Keychain with no matching keypair', function(){
+                function execution(){
+                    return c.instance.unlock({keys:alternativeAuthorKeychain});
+                }
+                it('should throw an error', function(){
+                    expect(execution).to.throw();
                 });
             });
         });
