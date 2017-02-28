@@ -103,7 +103,7 @@ describe('Internal Module: LockedContent', function() {
             context('when encryption fails because of unknown errors', function(){
                 it('should throw an error', function(){
                     expect(function(){
-                        LockedContent.lock(testContent, {debugFailEncryption: true});
+                        LockedContent.lock(testContent, {keys: readerKeychain, debugFailEncryption: true});
                     }).to.throw();
                 });
             });
