@@ -32,6 +32,7 @@ describe('Internal Module: LockedContent', function() {
 
 
     let alternativeAuthorKeychain = new Keychain();
+    alternativeAuthorKeychain.addNewAuthorKeypair({b: 1024});
     let alternativeAuthorKeypair = alternativeAuthorKeychain.keypairs[0];
 
     describe('construction', function() {
@@ -230,8 +231,8 @@ describe('Internal Module: LockedContent', function() {
                         return c.instance.unlock(_.extend(options, {keys:alternativeAuthorKeypair}));
                     }
                 }
-                it('should throw an error', function(){
-                    expect(getExecution()).to.throw();
+                it('should throw a KeyMatchError', function(){
+                    expect(getExecution()).to.throw(LockedContent.KeyMatchError);
                 });
                 it('should not throw an error if options.throwError is false', function(){
                     expect(getExecution({
@@ -263,6 +264,54 @@ describe('Internal Module: LockedContent', function() {
                     expect(getExecution({
                         throwError:false
                     })()).to.be.an('undefined');
+                });
+            });
+            context('when decryption fails because of unknown errors', function(){
+                it('should throw a ContentDecryptionError', function(){
+                    expect(function(){
+                        return c.instance.unlock({keys:readerKeypair, debugFailDecryption: true});
+                    }).to.throw(LockedContent.ContentDecryptionError);
+                });
+                it('should not throw an error if options.throwError is false', function(){
+                    expect(function(){
+                        return c.instance.unlock({keys:readerKeypair, debugFailDecryption: true, throwError: false});
+                    }).to.not.throw();
+                });
+            });
+            context('when tampering with the encryptedContentSignature', function(){
+                function getExecution(options){
+                    return function(){
+                        /** @type {LockedContent} */
+                        let tamperedInstance = _.clone(c.instance);
+                        tamperedInstance.encryptedContentSignature[0] += 4;
+                        return c.instance.unlock(_.extend(options, {keys:readerKeypair}));
+                    };
+                }
+                it('should throw a ContentAuthenticityError', function(){
+                    expect(getExecution()).to.throw(LockedContent.ContentAuthenticityError);
+                });
+                it('should not throw an error if options.throwError is false', function(){
+                    expect(getExecution({
+                        throwError:false
+                    })).to.not.throw();
+                });
+            });
+            context('when tampering with the encryptedContent', function(){
+                function getExecution(options){
+                    return function(){
+                        /** @type {LockedContent} */
+                        let tamperedInstance = _.clone(c.instance);
+                        tamperedInstance.encryptedContent[0] += 4;
+                        return c.instance.unlock(_.extend(options, {keys:readerKeypair}));
+                    };
+                }
+                it('should throw a ContentAuthenticityError', function(){
+                    expect(getExecution()).to.throw(LockedContent.ContentAuthenticityError);
+                });
+                it('should not throw an error if options.throwError is false', function(){
+                    expect(getExecution({
+                        throwError:false
+                    })).to.not.throw();
                 });
             });
         });
