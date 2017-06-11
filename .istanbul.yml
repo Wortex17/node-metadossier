@@ -1,2 +1,5 @@
 instrumentation:
   root: ./lib
+  excludes: [
+    'ExtendableError.js',
+  ]
